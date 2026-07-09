@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Hospital Management System – Manage patients and doctors with ease." />
+  <title>Hospital Management System</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="app-header">
+  <div class="container">
+    <h1>Clinic Appointment System</h1>
+    <p>Manage patients &amp; doctors — powered by FastAPI</p>
+  </div>
+</header>
+
+<!-- ═══════════════ TAB BAR ═══════════════ -->
+<nav class="container">
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="patients" id="tab-patients">👤 Patients</button>
+    <button class="tab-btn" data-tab="doctors" id="tab-doctors">🩺 Doctors</button>
+  </div>
+</nav>
+
+<!-- ═══════════════ PATIENTS PANEL ═══════════════ -->
+<section class="container panel active" id="panel-patients">
+  <div class="toolbar">
+    <h2>Patient Records <span class="badge" id="patient-count">0</span></h2>
+    <button class="btn btn-primary" id="btn-add-patient">＋ Add Patient</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th><th>Date of Birth</th><th>Gender</th><th>Phone</th><th>Email</th><th>Address</th><th>Last Updated</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="patient-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════ DOCTORS PANEL ═══════════════ -->
+<section class="container panel" id="panel-doctors">
+  <div class="toolbar">
+    <h2>Doctor Records <span class="badge" id="doctor-count">0</span></h2>
+    <button class="btn btn-primary" id="btn-add-doctor">＋ Add Doctor</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th><th>Specialization</th><th>Phone</th><th>Email</th><th>Experience</th><th>Availability</th><th>Last Updated</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="doctor-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════ PATIENT MODAL ═══════════════ -->
+<div class="modal-overlay" id="patient-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="patient-modal-title">Add Patient</h3>
+      <button class="modal-close" id="patient-modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="patient-form" novalidate>
+        <input type="hidden" id="patient-edit-id" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="p-name">Full Name *</label>
+            <input type="text" id="p-name" placeholder="e.g. Ahmed Ali" required minlength="2" maxlength="100" />
+            <span class="error-msg">Name is required (2-100 chars)</span>
+          </div>
+          <div class="form-group">
+            <label for="p-dob">Date of Birth *</label>
+            <input type="date" id="p-dob" required />
+            <span class="error-msg">Enter a valid past date (YYYY-MM-DD)</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="p-gender">Gender *</label>
+            <select id="p-gender" required>
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+            <span class="error-msg">Select Male or Female</span>
+          </div>
+          <div class="form-group">
+            <label for="p-phone">Phone *</label>
+            <input type="text" id="p-phone" placeholder="03XXXXXXXXX" required maxlength="11" />
+            <span class="error-msg">Pakistani format: 03XXXXXXXXX (11 digits)</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="p-email">Email *</label>
+          <input type="email" id="p-email" placeholder="example@mail.com" required />
+          <span class="error-msg">Enter a valid email address</span>
+        </div>
+
+        <div class="form-group">
+          <label for="p-address">Address *</label>
+          <input type="text" id="p-address" placeholder="Street, City, Pakistan" required minlength="5" maxlength="300" />
+          <span class="error-msg">Address required (5-300 chars)</span>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" id="patient-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="patient-submit-btn">Save Patient</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DOCTOR MODAL ═══════════════ -->
+<div class="modal-overlay" id="doctor-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="doctor-modal-title">Add Doctor</h3>
+      <button class="modal-close" id="doctor-modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="doctor-form" novalidate>
+        <input type="hidden" id="d-edit-id" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="d-name">Full Name *</label>
+            <input type="text" id="d-name" placeholder="e.g. Dr. Sara Khan" required minlength="2" maxlength="100" />
+            <span class="error-msg">Name is required (2-100 chars)</span>
+          </div>
+          <div class="form-group">
+            <label for="d-specialization">Specialization *</label>
+            <input type="text" id="d-specialization" placeholder="e.g. Cardiology" required minlength="2" maxlength="100" />
+            <span class="error-msg">Specialization required (2-100 chars)</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="d-phone">Phone *</label>
+            <input type="text" id="d-phone" placeholder="03XXXXXXXXX" required maxlength="11" />
+            <span class="error-msg">Pakistani format: 03XXXXXXXXX (11 digits)</span>
+          </div>
+          <div class="form-group">
+            <label for="d-email">Email *</label>
+            <input type="email" id="d-email" placeholder="doctor@hospital.com" required />
+            <span class="error-msg">Enter a valid email address</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="d-experience">Experience (years) *</label>
+            <input type="number" id="d-experience" placeholder="e.g. 5" required min="0" max="60" />
+            <span class="error-msg">Enter experience (0-60 years)</span>
+          </div>
+          <div class="form-group">
+            <label for="d-availability">Availability *</label>
+            <input type="text" id="d-availability" placeholder="e.g. Mon-Fri 9AM-5PM" required minlength="2" maxlength="100" />
+            <span class="error-msg">Availability required (2-100 chars)</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" id="doctor-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="doctor-submit-btn">Save Doctor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DELETE CONFIRM MODAL ═══════════════ -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal" style="width:420px;">
+    <div class="confirm-body">
+      <div class="icon-danger">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+        </svg>
+      </div>
+      <h3>Confirm Deletion</h3>
+      <p id="confirm-msg">Are you sure you want to delete this record? This action cannot be undone.</p>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="btn btn-cancel" id="confirm-cancel">Cancel</button>
+        <button class="btn btn-danger" id="confirm-ok">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══════════════ JAVASCRIPT ═══════════════ -->
+<script>
+/* ──────────────────────────────────────────────
+   Helpers
+   ────────────────────────────────────────────── */
+const API = {
+  patients: '/api/patients',
+  doctors:  '/api/doctors',
+};
+
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+/* ──────────────────────────────────────────────
+   Validation helpers
+   ────────────────────────────────────────────── */
+const PK_PHONE_RE = /^03\d{9}$/;
+const EMAIL_RE    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function setValid(el)   { el.classList.remove('invalid'); }
+function setInvalid(el) { el.classList.add('invalid'); }
+
+function validateField(el, testFn) {
+  const ok = testFn(el.value.trim());
+  ok ? setValid(el) : setInvalid(el);
+  return ok;
+}
+
+/* ──────────────────────────────────────────────
+   Tab switching
+   ────────────────────────────────────────────── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+  });
+});
+
+/* ──────────────────────────────────────────────
+   PATIENT CRUD
+   ────────────────────────────────────────────── */
+const patientTbody = document.getElementById('patient-tbody');
+const patientCount = document.getElementById('patient-count');
+
+async function loadPatients() {
+  try {
+    const res = await fetch(API.patients);
+    const data = await res.json();
+    patientCount.textContent = data.length;
+    if (data.length === 0) {
+      patientTbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><p>No patients found. Click <strong>＋ Add Patient</strong> to get started.</p></div></td></tr>`;
+      return;
+    }
+    patientTbody.innerHTML = data.map(p => `
+      <tr>
+        <td><strong>${esc(p.name)}</strong></td>
+        <td>${esc(p.date_of_birth)}</td>
+        <td><span class="gender-tag gender-${p.gender.toLowerCase()}">${p.gender === 'Male' ? '♂' : '♀'} ${esc(p.gender)}</span></td>
+        <td>${esc(p.phone)}</td>
+        <td>${esc(p.email)}</td>
+        <td>${esc(p.address)}</td>
+        <td>${p.updated_at ? new Date(p.updated_at).toLocaleString(): 'N/A'}</td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn btn-sm btn-edit" onclick="editPatient('${p.id}')">✏ Edit</button>
+            <button class="btn btn-sm btn-delete" onclick="deletePatient('${p.id}','${esc(p.name)}')">🗑 Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    toast('Failed to load patients', 'error');
+  }
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// Open add modal
+document.getElementById('btn-add-patient').addEventListener('click', () => {
+  document.getElementById('patient-form').reset();
+  document.getElementById('patient-edit-id').value = '';
+  document.getElementById('patient-modal-title').textContent = 'Add Patient';
+  document.getElementById('patient-submit-btn').textContent = 'Save Patient';
+  clearValidation('patient-form');
+  openModal('patient-modal');
+});
+
+// Close modal
+document.getElementById('patient-modal-close').addEventListener('click', () => closeModal('patient-modal'));
+document.getElementById('patient-cancel-btn').addEventListener('click', () => closeModal('patient-modal'));
+
+// Submit
+document.getElementById('patient-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validatePatientForm()) return;
+
+  const editId = document.getElementById('patient-edit-id').value;
+  const body = {
+    name:          document.getElementById('p-name').value.trim(),
+    date_of_birth: document.getElementById('p-dob').value,
+    gender:        document.getElementById('p-gender').value,
+    phone:         document.getElementById('p-phone').value.trim(),
+    email:         document.getElementById('p-email').value.trim(),
+    address:       document.getElementById('p-address').value.trim(),
+  };
+
+  try {
+    const url = editId ? `${API.patients}/${editId}` : API.patients;
+    const method = editId ? 'PUT' : 'POST';
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      const msg = err.detail?.[0]?.msg || err.detail || 'Validation error';
+      toast(msg, 'error');
+      return;
+    }
+    toast(editId ? 'Patient updated successfully!' : 'Patient added successfully!');
+    closeModal('patient-modal');
+    loadPatients();
+  } catch (e) {
+    toast('Network error', 'error');
+  }
+});
+
+function validatePatientForm() {
+  let ok = true;
+  ok = validateField(document.getElementById('p-name'),   v => v.length >= 2 && v.length <= 100) && ok;
+  ok = validateField(document.getElementById('p-dob'),    v => { const d = new Date(v); return v && !isNaN(d) && d < new Date(); }) && ok;
+  ok = validateField(document.getElementById('p-gender'), v => v === 'Male' || v === 'Female') && ok;
+  ok = validateField(document.getElementById('p-phone'),  v => PK_PHONE_RE.test(v)) && ok;
+  ok = validateField(document.getElementById('p-email'),  v => EMAIL_RE.test(v)) && ok;
+  ok = validateField(document.getElementById('p-address'),v => v.length >= 5 && v.length <= 300) && ok;
+  return ok;
+}
+
+async function editPatient(id) {
+  try {
+    const res = await fetch(`${API.patients}/${id}`);
+    const p = await res.json();
+    document.getElementById('patient-edit-id').value = p.id;
+    document.getElementById('p-name').value    = p.name;
+    document.getElementById('p-dob').value     = p.date_of_birth;
+    document.getElementById('p-gender').value  = p.gender;
+    document.getElementById('p-phone').value   = p.phone;
+    document.getElementById('p-email').value   = p.email;
+    document.getElementById('p-address').value = p.address;
+    document.getElementById('patient-modal-title').textContent = 'Edit Patient';
+    document.getElementById('patient-submit-btn').textContent = 'Update Patient';
+    clearValidation('patient-form');
+    openModal('patient-modal');
+  } catch (e) {
+    toast('Failed to fetch patient', 'error');
+  }
+}
+
+function deletePatient(id, name) {
+  confirmDelete(`Delete patient <strong>${name}</strong>?`, async () => {
+    try {
+      const res = await fetch(`${API.patients}/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      toast('Patient deleted');
+      loadPatients();
+    } catch (e) {
+      toast('Delete failed', 'error');
+    }
+  });
+}
+
+/* ──────────────────────────────────────────────
+   DOCTOR CRUD
+   ────────────────────────────────────────────── */
+const doctorTbody = document.getElementById('doctor-tbody');
+const doctorCount = document.getElementById('doctor-count');
+
+async function loadDoctors() {
+  try {
+    const res = await fetch(API.doctors);
+    const data = await res.json();
+    doctorCount.textContent = data.length;
+    if (data.length === 0) {
+      doctorTbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><p>No doctors found. Click <strong>＋ Add Doctor</strong> to get started.</p></div></td></tr>`;
+      return;
+    }
+    doctorTbody.innerHTML = data.map(d => `
+      <tr>
+        <td><strong>${esc(d.name)}</strong></td>
+        <td>${esc(d.specialization)}</td>
+        <td>${esc(d.phone)}</td>
+        <td>${esc(d.email)}</td>
+        <td>${d.experience} years</td>
+        <td>${esc(d.availability)}</td>
+        <td>${d.updated_at ? new Date(d.updated_at).toLocaleString(): 'N/A' }</td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn btn-sm btn-edit" onclick="editDoctor('${d.id}')">✏ Edit</button>
+            <button class="btn btn-sm btn-delete" onclick="deleteDoctor('${d.id}','${esc(d.name)}')">🗑 Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    toast('Failed to load doctors', 'error');
+  }
+}
+
+// Open add modal
+document.getElementById('btn-add-doctor').addEventListener('click', () => {
+  document.getElementById('doctor-form').reset();
+  document.getElementById('d-edit-id').value = '';
+  document.getElementById('doctor-modal-title').textContent = 'Add Doctor';
+  document.getElementById('doctor-submit-btn').textContent = 'Save Doctor';
+  clearValidation('doctor-form');
+  openModal('doctor-modal');
+});
+
+// Close modal
+document.getElementById('doctor-modal-close').addEventListener('click', () => closeModal('doctor-modal'));
+document.getElementById('doctor-cancel-btn').addEventListener('click', () => closeModal('doctor-modal'));
+
+// Submit
+document.getElementById('doctor-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validateDoctorForm()) return;
+
+  const editId = document.getElementById('d-edit-id').value;
+  const body = {
+    name:           document.getElementById('d-name').value.trim(),
+    specialization: document.getElementById('d-specialization').value.trim(),
+    phone:          document.getElementById('d-phone').value.trim(),
+    email:          document.getElementById('d-email').value.trim(),
+    experience:     parseInt(document.getElementById('d-experience').value, 10),
+    availability:   document.getElementById('d-availability').value.trim(),
+  };
+
+  try {
+    const url = editId ? `${API.doctors}/${editId}` : API.doctors;
+    const method = editId ? 'PUT' : 'POST';
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      const msg = err.detail?.[0]?.msg || err.detail || 'Validation error';
+      toast(msg, 'error');
+      return;
+    }
+    toast(editId ? 'Doctor updated successfully!' : 'Doctor added successfully!');
+    closeModal('doctor-modal');
+    loadDoctors();
+  } catch (e) {
+    toast('Network error', 'error');
+  }
+});
+
+function validateDoctorForm() {
+  let ok = true;
+  ok = validateField(document.getElementById('d-name'),           v => v.length >= 2 && v.length <= 100) && ok;
+  ok = validateField(document.getElementById('d-specialization'), v => v.length >= 2 && v.length <= 100) && ok;
+  ok = validateField(document.getElementById('d-phone'),          v => PK_PHONE_RE.test(v)) && ok;
+  ok = validateField(document.getElementById('d-email'),          v => EMAIL_RE.test(v)) && ok;
+  ok = validateField(document.getElementById('d-experience'),     v => { const n = parseInt(v,10); return !isNaN(n) && n >= 0 && n <= 60; }) && ok;
+  ok = validateField(document.getElementById('d-availability'),   v => v.length >= 2 && v.length <= 100) && ok;
+  return ok;
+}
+
+async function editDoctor(id) {
+  try {
+    const res = await fetch(`${API.doctors}/${id}`);
+    const d = await res.json();
+    document.getElementById('d-edit-id').value        = d.id;
+    document.getElementById('d-name').value           = d.name;
+    document.getElementById('d-specialization').value = d.specialization;
+    document.getElementById('d-phone').value          = d.phone;
+    document.getElementById('d-email').value          = d.email;
+    document.getElementById('d-experience').value     = d.experience;
+    document.getElementById('d-availability').value   = d.availability;
+    document.getElementById('doctor-modal-title').textContent = 'Edit Doctor';
+    document.getElementById('doctor-submit-btn').textContent = 'Update Doctor';
+    clearValidation('doctor-form');
+    openModal('doctor-modal');
+  } catch (e) {
+    toast('Failed to fetch doctor', 'error');
+  }
+}
+
+function deleteDoctor(id, name) {
+  confirmDelete(`Delete doctor <strong>${name}</strong>?`, async () => {
+    try {
+      const res = await fetch(`${API.doctors}/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      toast('Doctor deleted');
+      loadDoctors();
+    } catch (e) {
+      toast('Delete failed', 'error');
+    }
+  });
+}
+
+/* ──────────────────────────────────────────────
+   Delete confirmation
+   ────────────────────────────────────────────── */
+let pendingDeleteFn = null;
+
+function confirmDelete(msg, fn) {
+  document.getElementById('confirm-msg').innerHTML = msg;
+  pendingDeleteFn = fn;
+  openModal('confirm-modal');
+}
+
+document.getElementById('confirm-cancel').addEventListener('click', () => {
+  closeModal('confirm-modal');
+  pendingDeleteFn = null;
+});
+
+document.getElementById('confirm-ok').addEventListener('click', () => {
+  closeModal('confirm-modal');
+  if (pendingDeleteFn) pendingDeleteFn();
+  pendingDeleteFn = null;
+});
+
+/* ──────────────────────────────────────────────
+   Utility
+   ────────────────────────────────────────────── */
+function clearValidation(formId) {
+  document.getElementById(formId).querySelectorAll('input, select').forEach(el => setValid(el));
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+// Close on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.show').forEach(m => closeModal(m.id));
+  }
+});
+
+/* ── Real-time validation on input ── */
+document.querySelectorAll('#patient-form input, #patient-form select').forEach(el => {
+  el.addEventListener('input', () => { if (el.classList.contains('invalid')) setValid(el); });
+});
+document.querySelectorAll('#doctor-form input, #doctor-form select').forEach(el => {
+  el.addEventListener('input', () => { if (el.classList.contains('invalid')) setValid(el); });
+});
+
+/* ── Init ── */
+loadPatients();
+loadDoctors();
+</script>
+</body>
+</html>

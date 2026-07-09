@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Shah",
+    "date_of_birth": "2026-05-01",
+    "gender": "Male",
+    "phone": "03123456789",
+    "email": "nainuShah@gmail.com",
+    "address": "House#23, Street 04,G-13,islamabad",
+    "id": "aaf9adfe-b589-40d2-8bca-d858dbb09de0"
+  },
+  {
+    "name": "laiba",
+    "date_of_birth": "2008-06-11",
+    "gender": "Female",
+    "phone": "03000000000",
+    "email": "lb@nu.edu.pk",
+    "address": "I8, Islamabad",
+    "id": "7bb0a7ac-6bd4-41b7-ac22-c5243e2775d0"
+  }
+]
