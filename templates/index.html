@@ -22,8 +22,10 @@
   <div class="tab-bar">
     <button class="tab-btn active" data-tab="patients" id="tab-patients">👤 Patients</button>
     <button class="tab-btn" data-tab="doctors" id="tab-doctors">🩺 Doctors</button>
+    <button class="tab-btn" data-tab="appointments" id="tab-appointments">📅 Appointments</button>
   </div>
 </nav>
+
 
 <!-- ═══════════════ PATIENTS PANEL ═══════════════ -->
 <section class="container panel active" id="panel-patients">
@@ -60,6 +62,25 @@
     </table>
   </div>
 </section>
+
+<!-- ═══════════════ APPOINTMENTS PANEL ═══════════════ -->
+<section class="container panel" id="panel-appointments">
+  <div class="toolbar">
+    <h2>Appointment Records <span class="badge" id="appointment-count">0</span></h2>
+    <button class="btn btn-primary" id="btn-add-appointment">＋ Book Appointment</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Patient</th><th>Doctor</th><th>Date</th><th>Start Time</th><th>End Time</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="appointment-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
 
 <!-- ═══════════════ PATIENT MODAL ═══════════════ -->
 <div class="modal-overlay" id="patient-modal">
@@ -168,8 +189,21 @@
           </div>
           <div class="form-group">
             <label for="d-availability">Availability *</label>
-            <input type="text" id="d-availability" placeholder="e.g. Mon-Fri 9AM-5PM" required minlength="2" maxlength="100" />
+            <input type="text" id="d-availability" placeholder="e.g. Mon-Fri" required minlength="2" maxlength="100" />
             <span class="error-msg">Availability required (2-100 chars)</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="d-duty-start">Duty Start Time *</label>
+            <input type="time" id="d-duty-start" required />
+            <span class="error-msg">Start time is required</span>
+          </div>
+          <div class="form-group">
+            <label for="d-duty-end">Duty End Time *</label>
+            <input type="time" id="d-duty-end" required />
+            <span class="error-msg">End time is required</span>
           </div>
         </div>
 
@@ -201,6 +235,62 @@
   </div>
 </div>
 
+<!-- ═══════════════ APPOINTMENT MODAL ═══════════════ -->
+<div class="modal-overlay" id="appointment-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="appointment-modal-title">Book Appointment</h3>
+      <button class="modal-close" id="appointment-modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="appointment-form" novalidate>
+        <input type="hidden" id="appointment-edit-id" /> <!-- Add this line -->
+        <div class="form-group">
+          <label for="app-patient">Select Patient *</label>
+          <select id="app-patient" required>
+            <option value="">Choose a patient...</option>
+          </select>
+          <span class="error-msg">Please select a patient</span>
+        </div>
+
+        <div class="form-group">
+          <label for="app-doctor">Select Doctor *</label>
+          <select id="app-doctor" required>
+            <option value="">Choose a doctor...</option>
+          </select>
+          <span class="error-msg">Please select a doctor</span>
+          <div id="doctor-hours-hint" style="margin-top:5px; font-size:0.8rem; color:var(--primary-soft); font-weight:600;"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="app-date">Appointment Date *</label>
+          <input type="date" id="app-date" required />
+          <span class="error-msg">Enter a valid future date</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="app-start-time">Start Time *</label>
+            <input type="time" id="app-start-time" required />
+            <span class="error-msg">Start time required</span>
+          </div>
+          <div class="form-group">
+            <label for="app-end-time">End Time *</label>
+            <input type="time" id="app-end-time" required />
+            <span class="error-msg">End time must be after start time</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" id="appointment-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="appointment-submit-btn">Book Appointment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 <!-- Toast Container -->
 <div class="toast-container" id="toast-container"></div>
 
@@ -212,6 +302,7 @@
 const API = {
   patients: '/api/patients',
   doctors:  '/api/doctors',
+  appointments: '/api/appointments'
 };
 
 function toast(msg, type = 'success') {
@@ -409,6 +500,7 @@ async function loadDoctors() {
         <td>${esc(d.email)}</td>
         <td>${d.experience} years</td>
         <td>${esc(d.availability)}</td>
+        <td>${d.duty_start.substring(0,5)} - ${d.duty_end.substring(0,5)}</td>
         <td>${d.updated_at ? new Date(d.updated_at).toLocaleString(): 'N/A' }</td>
         <td>
           <div class="actions-cell">
@@ -450,6 +542,8 @@ document.getElementById('doctor-form').addEventListener('submit', async (e) => {
     email:          document.getElementById('d-email').value.trim(),
     experience:     parseInt(document.getElementById('d-experience').value, 10),
     availability:   document.getElementById('d-availability').value.trim(),
+    duty_start:     document.getElementById('d-duty-start').value,
+    duty_end:       document.getElementById('d-duty-end').value
   };
 
   try {
@@ -496,6 +590,8 @@ async function editDoctor(id) {
     document.getElementById('d-email').value          = d.email;
     document.getElementById('d-experience').value     = d.experience;
     document.getElementById('d-availability').value   = d.availability;
+    document.getElementById('d-duty-start').value = doctor.duty_start;
+    document.getElementById('d-duty-end').value = doctor.duty_end;
     document.getElementById('doctor-modal-title').textContent = 'Edit Doctor';
     document.getElementById('doctor-submit-btn').textContent = 'Update Doctor';
     clearValidation('doctor-form');
@@ -541,6 +637,183 @@ document.getElementById('confirm-ok').addEventListener('click', () => {
 });
 
 /* ──────────────────────────────────────────────
+   APPOINTMENT CRUD & POPULATION
+   ────────────────────────────────────────────── */
+const appointmentTbody = document.getElementById('appointment-tbody');
+const appointmentCount = document.getElementById('appointment-count');
+let allDoctorsList = []; // Local cache to view duty hours dynamically
+
+async function loadAppointments() {
+  try {
+    const res = await fetch(API.appointments);
+    const data = await res.json();
+    appointmentCount.textContent = data.length;
+    if (data.length === 0) {
+      appointmentTbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><p>No appointments found. Click <strong>＋ Book Appointment</strong> to get started.</p></div></td></tr>`;
+      return;
+    }
+    appointmentTbody.innerHTML = data.map(app => `
+      <tr>
+        <td><strong>${esc(app.patient_name || 'Unknown Patient')}</strong></td>
+        <td><strong>${esc(app.doctor_name || 'Unknown Doctor')}</strong></td>
+        <td>${esc(app.appointment_date)}</td>
+        <td>${esc(app.start_time.substring(0, 5))}</td>
+        <td>${esc(app.end_time.substring(0, 5))}</td>
+        <td>
+          <div class="actions-cell">
+             <button class="btn btn-sm btn-edit" onclick="editAppointment('${app.id}')">✏ Edit</button>
+             <button class="btn btn-sm btn-delete" onclick="cancelAppointment('${app.id}')">🗑 Cancel</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    toast('Failed to load appointments', 'error');
+  }
+}
+
+async function editAppointment(id) {
+  try {
+    // Fetch patients, doctors, and the specific appointment
+    const [patRes, docRes, apptRes] = await Promise.all([
+      fetch(API.patients),
+      fetch(API.doctors),
+      fetch(`${API.appointments}/${id}`)
+    ]);
+    
+    const patients = await patRes.json();
+    allDoctorsList = await docRes.json();
+    const appt = await apptRes.json();
+
+    const patientSelect = document.getElementById('app-patient');
+    const doctorSelect = document.getElementById('app-doctor');
+
+    patientSelect.innerHTML = '<option value="">Choose a patient...</option>' + 
+      patients.map(p => `<option value="${p.id}">${esc(p.name)} (${esc(p.phone)})</option>`).join('');
+
+    doctorSelect.innerHTML = '<option value="">Choose a doctor...</option>' + 
+      allDoctorsList.map(d => `<option value="${d.id}">${esc(d.name)} - ${esc(d.specialization)}</option>`).join('');
+
+    // Populate fields
+    document.getElementById('appointment-edit-id').value = appt.id;
+    document.getElementById('app-patient').value = appt.patient_id;
+    document.getElementById('app-doctor').value = appt.doctor_id;
+    document.getElementById('app-date').value = appt.appointment_date;
+    document.getElementById('app-start-time').value = appt.start_time.substring(0, 5);
+    document.getElementById('app-end-time').value = appt.end_time.substring(0, 5);
+
+    // Set date limits
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('app-date').setAttribute('min', today);
+
+    // Populate duty hours description
+    const selectedDoc = allDoctorsList.find(d => d.id === appt.doctor_id);
+    if (selectedDoc) {
+      const start = selectedDoc.duty_start.substring(0, 5);
+      const end = selectedDoc.duty_end.substring(0, 5);
+      document.getElementById('doctor-hours-hint').textContent = `Duty hours: ${start} - ${end} (${esc(selectedDoc.availability)})`;
+    }
+
+    // Update modal text values
+    document.getElementById('appointment-modal-title').textContent = 'Edit Appointment';
+    document.getElementById('appointment-submit-btn').textContent = 'Update Appointment';
+
+    clearValidation('appointment-form');
+    openModal('appointment-modal');
+  } catch (e) {
+    toast('Failed to load appointment details', 'error');
+  }
+}
+
+
+// Open booking modal
+document.getElementById('btn-add-appointment').addEventListener('click', async () => {
+  document.getElementById('appointment-form').reset();
+  document.getElementById('appointment-edit-id').value = ''; // Clear edit ID
+  document.getElementById('appointment-modal-title').textContent = 'Book Appointment';
+  document.getElementById('appointment-submit-btn').textContent = 'Book Appointment';
+  document.getElementById('doctor-hours-hint').textContent = '';
+  clearValidation('appointment-form');
+  
+  // Set minimum date input to today
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('app-date').setAttribute('min', today);
+
+  // Populate Select Boxes
+  try {
+    const [patRes, docRes] = await Promise.all([fetch(API.patients), fetch(API.doctors)]);
+    const patients = await patRes.json();
+    allDoctorsList = await docRes.json();
+
+    const patientSelect = document.getElementById('app-patient');
+    const doctorSelect = document.getElementById('app-doctor');
+
+    patientSelect.innerHTML = '<option value="">Choose a patient...</option>' + 
+      patients.map(p => `<option value="${p.id}">${esc(p.name)} (${esc(p.phone)})</option>`).join('');
+
+    doctorSelect.innerHTML = '<option value="">Choose a doctor...</option>' + 
+      allDoctorsList.map(d => `<option value="${d.id}">${esc(d.name)} - ${esc(d.specialization)}</option>`).join('');
+
+    openModal('appointment-modal');
+  } catch (e) {
+    toast('Failed to load doctors or patients data', 'error');
+  }
+});
+
+// Update Doctor Duty Time hint dynamically
+document.getElementById('app-doctor').addEventListener('change', (e) => {
+  const docId = e.target.value;
+  const hintEl = document.getElementById('doctor-hours-hint');
+  if (!docId) {
+    hintEl.textContent = '';
+    return;
+  }
+  const selectedDoc = allDoctorsList.find(d => d.id === docId);
+  if (selectedDoc) {
+    const start = selectedDoc.duty_start.substring(0, 5);
+    const end = selectedDoc.duty_end.substring(0, 5);
+    hintEl.textContent = `Duty hours: ${start} - ${end} (${esc(selectedDoc.availability)})`;
+  }
+});
+
+// Modal close actions
+document.getElementById('appointment-modal-close').addEventListener('click', () => closeModal('appointment-modal'));
+document.getElementById('appointment-cancel-btn').addEventListener('click', () => closeModal('appointment-modal'));
+
+
+function validateAppointmentForm() {
+  let ok = true;
+  ok = validateField(document.getElementById('app-patient'),    v => v !== '') && ok;
+  ok = validateField(document.getElementById('app-doctor'),     v => v !== '') && ok;
+  ok = validateField(document.getElementById('app-date'),       v => v !== '') && ok;
+  ok = validateField(document.getElementById('app-start-time'), v => v !== '') && ok;
+  ok = validateField(document.getElementById('app-end-time'),   v => v !== '') && ok;
+  
+  const start = document.getElementById('app-start-time').value;
+  const end = document.getElementById('app-end-time').value;
+  if (start && end && start >= end) {
+    setInvalid(document.getElementById('app-end-time'));
+    ok = false;
+  }
+  return ok;
+}
+
+// Cancel Booking
+function cancelAppointment(id) {
+  confirmDelete('Are you sure you want to cancel this appointment?', async () => {
+    try {
+      const res = await fetch(`${API.appointments}/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      toast('Appointment cancelled');
+      loadAppointments();
+    } catch (e) {
+      toast('Failed to cancel appointment', 'error');
+    }
+  });
+}
+
+
+/* ──────────────────────────────────────────────
    Utility
    ────────────────────────────────────────────── */
 function clearValidation(formId) {
@@ -568,10 +841,49 @@ document.querySelectorAll('#patient-form input, #patient-form select').forEach(e
 document.querySelectorAll('#doctor-form input, #doctor-form select').forEach(el => {
   el.addEventListener('input', () => { if (el.classList.contains('invalid')) setValid(el); });
 });
+document.getElementById('appointment-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validateAppointmentForm()) return;
+
+  const editId = document.getElementById('appointment-edit-id').value;
+  const payload = {
+    patient_id:       document.getElementById('app-patient').value,
+    doctor_id:        document.getElementById('app-doctor').value,
+    appointment_date: document.getElementById('app-date').value,
+    start_time:       document.getElementById('app-start-time').value,
+    end_time:         document.getElementById('app-end-time').value,
+  };
+
+  try {
+    const url = editId ? `${API.appointments}/${editId}` : API.appointments;
+    const method = editId ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      const msg = err.detail?.[0]?.msg || err.detail || 'Failed to submit appointment';
+      toast(msg, 'error');
+      return;
+    }
+
+    toast(editId ? 'Appointment rescheduled successfully!' : 'Appointment booked successfully!');
+    closeModal('appointment-modal');
+    loadAppointments();
+  } catch (e) {
+    toast('Network error occurred', 'error');
+  }
+});
+
 
 /* ── Init ── */
 loadPatients();
 loadDoctors();
+loadAppointments();
 </script>
 </body>
 </html>

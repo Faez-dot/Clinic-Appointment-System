@@ -9,6 +9,7 @@ Base.metadata.create_all(bind=engine) #checks db server through engine and creat
 
 from routes.patient_routes import router as patientRouter
 from routes.doctor_routes import router as doctorRouter
+from routes.appointment_routes import router as appointmentRouter
 
 app = FastAPI(
     title="Clinic Appointment System",
@@ -18,6 +19,7 @@ app = FastAPI(
 # Register API Routers
 app.include_router(patientRouter)
 app.include_router(doctorRouter)
+app.include_router(appointmentRouter)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")

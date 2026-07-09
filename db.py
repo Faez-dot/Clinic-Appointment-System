@@ -1,7 +1,7 @@
 from sqlalchemy.orm import declarative_base #ORM for bridging python code and SQL db
 from sqlalchemy.orm import sessionmaker #to manage transactions - COMMIT,ROLLBACK,BEGIN
 #create_engine to connect python script to db
-from sqlalchemy import create_engine, Column, String, Date, DateTime, INT, Enum
+from sqlalchemy import create_engine, Column, String, Date, DateTime, INT, Enum, ForeignKey, Time
 from datetime import datetime
 from classes import Gender
 
@@ -37,8 +37,22 @@ class DoctorDB(Base):
     email=Column(String(255),unique=True)
     experience=Column(INT, nullable=False)
     availability=Column(String(100),nullable=False)
+    duty_start=Column(Time,nullable=False)
+    duty_end=Column(Time,nullable=False)
     created_at=Column(DateTime, default=datetime.utcnow)
     updated_at=Column(DateTime,default=datetime.utcnow,onupdate=datetime.utcnow)
+
+class AppointmentDB(Base):
+    __tablename__="appointment"
+    id=Column(String(36),primary_key=True)
+    patient_id=Column(String(36),ForeignKey("patient.id", ondelete="CASCADE"),nullable=False)
+    doctor_id=Column(String(36),ForeignKey("doctor.id", ondelete="CASCADE"),nullable=False)
+    appointment_date=Column(Date, nullable=False)
+    start_time=Column(Time,nullable=False)
+    end_time=Column(Time,nullable=False)
+    created_at=Column(DateTime, default=datetime.utcnow)
+    updated_at=Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 
 def get_db():
     db=sessionLocal() #opens fresh db connection before routes start

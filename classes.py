@@ -4,7 +4,7 @@ from datetime import date
 from enum import Enum
 from typing import Optional
 from pydantic import BaseModel, field_validator, Field, EmailStr
-from datetime import date, datetime
+from datetime import date, datetime, time
 
 class Gender(str, Enum): #enum so no other option is selected
     Male="Male"
@@ -62,11 +62,14 @@ class DoctorBase(BaseModel):
     email: EmailStr
     experience: int=Field(..., ge=0,le=60, description="Years of experience")
     availability: str=Field(..., min_length=4, max_length=100, description="Mon-Fri 9AM-5PM")
+    duty_start:time=Field(..., description="Doctor's shift start time")
+    duty_end:time=Field(..., description="Doctor's shift end time")
 
     @field_validator("phone")
     @classmethod
     def validate_phone(cls, phone:str)->str:
         return _validate_Phone_Number(phone)
+    
     
 class DoctorCreate(DoctorBase):
     id: str=Field(default_factory=lambda:str(uuid.uuid4()), description="Auto-generated UUID")
@@ -81,7 +84,44 @@ class DoctorOut(DoctorBase):
     model_config={
         "from_attributes":True,
         "json_encoders":{
-            datetime: lambda v:v.isoformat()
+            datetime: lambda v:v.isoformat(),
+            date: lambda v:v.isoformat(),
+            time: lambda v:v.isoformat()
         }
     }
 
+class AppointmentBase(BaseModel):
+    patient_id:str=Field(..., description="UUID of patient")
+    doctor_id:str=Field(..., description="UUID of doctor")
+    appointment_date:date=Field(...,description="Date of appointment")
+    start_time:time=Field(...,description="Start time")
+    end_time:time=Field(...,description="End time")
+
+    @field_validator("appointment_date")
+    @classmethod
+    def validate_date(cls, v: date)->date:
+        if v<date.today():
+            raise ValueError("Appointment date cannot be in the past")
+        return v
+    
+class AppointmentCreate(AppointmentBase):
+    id:str=Field(default_factory=lambda: str(uuid.uuid4()), description="Auto-generated UUID")
+
+class AppointmentOut(AppointmentBase):
+    id:str
+    patient_name: Optional[str]=None
+    doctor_name: Optional[str]=None
+    created_at: datetime
+    updated_at:datetime
+
+    model_config={
+        "from_attributes":True,
+        "json_encoders":{
+            datetime:lambda v:v.isoformat(),
+            date:lambda v:v.isoformat(),
+            time:lambda v:v.isoformat()
+        }
+    }
+
+class AppointmentUpdate(AppointmentBase):
+    pass

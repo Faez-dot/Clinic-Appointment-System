@@ -121,3 +121,50 @@ border-radius:10px;box-shadow:var(--shadow)
 .app-header h1{font-size:1.8rem}
 .tab-btn{padding:10px 16px}
 }
+
+/* ═══════════════ TOAST NOTIFICATIONS FIX ═══════════════ */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 10000; /* Placed above modals (which have no explicit higher z-index) */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none; /* Clicks bypass container gaps to reach content underneath */
+}
+
+.toast {
+  pointer-events: auto; /* Re-enable clicks on toast body */
+  background: var(--primary);
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  max-width: 400px;
+  font-weight: 500;
+  animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toast.success {
+  background: var(--success);
+  border-left: 4px solid #147a51;
+}
+
+.toast.error {
+  background: var(--danger);
+  border-left: 4px solid #b33c39;
+}
+
+/* Smooth Slide-in and Fade-in Animation */
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(-20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
