@@ -79,7 +79,7 @@ def appointment_create(request):
         form=AppointmentForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('clinicSystem: appointment_list')
+            return redirect('clinicSystem:appointment_list')
     else:
         form=AppointmentForm()
     return render(request, 'appointments/form.html', {'form': form, 'title': 'Add Appointment'})
@@ -98,5 +98,5 @@ def appointment_update(request, pk):
 def appointment_delete(request, pk):
     appointment=get_object_or_404(Appointment, pk=pk)
     appointment.delete()
-    return render(request, 'clinicSystem:appointment_list')
+    return redirect('clinicSystem:appointment_list')
 

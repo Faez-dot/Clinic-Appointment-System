@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Appointments</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>Appointments</h1>
+            <p>Manage appointment records</p>
+        </header>
+
+        <div class="toolbar">
+            <h2>Appointment List</h2>
+            <a class="btn btn-primary" href="/appointments/add/">Add Appointment</a>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                        <tr>
+                            <td>{{ appointment.patient.name }}</td>
+                            <td>{{ appointment.doctor.name }}</td>
+                            <td>{{ appointment.date }}</td>
+                            <td>
+                                <a class="btn btn-edit" href="/appointments/{{ appointment.pk }}/edit/">Edit</a>
+                                <a class="btn btn-delete" href="/appointments/{{ appointment.pk }}/delete/">Delete</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">No appointments found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

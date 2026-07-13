@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Clinic Appointment System</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>Clinic Appointment System</h1>
+            <p>Manage patients, doctors, and appointments</p>
+        </header>
+
+        <div class="tab-bar">
+            <a class="tab-btn active" href="/patients/">Patients</a>
+            <a class="tab-btn" href="/doctors/">Doctors</a>
+            <a class="tab-btn" href="/appointments/">Appointments</a>
+        </div>
+    </div>
+</body>
+</html>

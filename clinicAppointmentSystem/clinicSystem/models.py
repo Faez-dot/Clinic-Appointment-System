@@ -16,11 +16,11 @@ class Patient(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
-class Meta: #to handle table names
-    db_table='patient'
+    class Meta: #to handle table names
+        db_table='clinicsystem_patient'
 
-def __str__(self):
-    return self.name
+    def __str__(self):
+        return self.name
 
 class Doctor(models.Model):
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -35,11 +35,11 @@ class Doctor(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
-class Meta:
-    db_table='doctor'
+    class Meta:
+        db_table='clinicsystem_doctor'
 
-def __str__(self):
-    return self.name
+    def __str__(self):
+        return self.name
 
 class Appointment(models.Model):
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -51,9 +51,9 @@ class Appointment(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
-class Meta:
-    db_table='appointment'
+    class Meta:
+        db_table='clinicsystem_appointment'
 
-def __str__(self):
-    return f"{self.patient.name} -> {self.doctor.name}"
+    def __str__(self):
+        return f"{self.patient.name} -> {self.doctor.name}"
 
