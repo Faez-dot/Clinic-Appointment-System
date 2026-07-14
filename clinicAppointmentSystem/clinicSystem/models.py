@@ -57,3 +57,33 @@ class Appointment(models.Model):
     def __str__(self):
         return f"{self.patient.name} -> {self.doctor.name}"
 
+class Prescription(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient=models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='prescriptions')
+    doctor=models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='prescriptions')
+    medicine_name=models.CharField(max_length=200)
+    dosage=models.CharField(max_length=100)
+    instructions=models.TextField()
+    prescription_date=models.DateField()
+
+    class Meta:
+        db_table='clinicsystem_prescriptions'
+
+    def __str__(self):
+        return f"{self.patient.name} - {self.medicine_name}"
+    
+class Billing(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient=models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='billings')
+    appointment=models.ForeignKey('Appointment', on_delete=models.SET_NULL, null=True, blank=True, related_name='billings')
+    amount=models.DecimalField(max_digits=8, decimal_places=2)
+    payment_status=models.CharField(max_length=50, default='Pending')
+    payment_date=models.DateField(null=True, blank=True)
+
+    class Meta:
+        db_table='clinicsystem_billing'
+
+    def __str__(self):
+        return f"{self.patient.name} - {self.amount}"
+    
+

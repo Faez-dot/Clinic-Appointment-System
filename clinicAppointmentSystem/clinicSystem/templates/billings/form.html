@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>{{ title}}</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>{{ title }}</h1>
+            <p>Fill in the billing details</p>
+        </header>
+
+        <div class="toolbar">
+            <h2>Billing Form</h2>
+            <a class="btn btn-edit" href="/billings/">Back to Billinhgs</a>
+        </div>
+
+        <div class="table-wrap">
+            <div class="modal-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

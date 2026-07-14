@@ -1,5 +1,5 @@
 from django import forms
-from .models import Patient, Doctor, Appointment
+from .models import Patient, Doctor, Appointment,Prescription,Billing
 
 class PatientForm(forms.ModelForm):
     class Meta:
@@ -17,4 +17,14 @@ class AppointmentForm(forms.ModelForm):
     class Meta:
         model=Appointment
         fields=['patient', 'doctor', 'appointment_date','start_time','end_time']
+
+class PrescriptionForm(forms.ModelForm):
+    class Meta:
+        model=Prescription
+        fields=['patient', 'doctor', 'medicine_name', 'dosage', 'instructions', 'prescription_date']
+
+class BillingForm(forms.ModelForm):
+    class Meta:
+        model=Billing
+        fields=['patient', 'appointment', 'amount', 'payment_status', 'payment_date']
 

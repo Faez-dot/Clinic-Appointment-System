@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Billings</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>Billings</h1>
+            <p>Manage billing records</p>
+        </header>
+
+        <div class="toolbar">
+            <h2>Billing list</h2>
+            <a class="btn btn-primary" href="/billings/add/">Add Billings</a>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Appointment</th>
+                        <th>Amount</th>
+                        <th>Payment Status</th>
+                        <th>Payment Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for billing in billings %}
+                        <tr>
+                            <td>{{ billing.patient.name }}</td>
+                            <td>{% if billing.appointment %}{{ billing.appointment }}{% else %}-{% endif %}</td>
+                            <td>{{ billing.amount }}</td>
+                            <td>{{ billing.payment_status }}</td>
+                            <td>{{ billing.payment_date|default:"-" }}</td>
+                            <td>
+                                <a class="btn btn-edit" href="/billings/{{ billing.pk }}/edit/">Edit</a>
+                                <a class="btn btn-delete" href="/billings/{{ billing.pk }}/delete/">Delete</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">No billing records found</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    
+</body>
+</html>

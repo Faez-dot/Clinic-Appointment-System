@@ -16,5 +16,13 @@ urlpatterns = [
     path('appointments/', views.appointment_list, name='appointment_list'),
     path('appointments/add/', views.appointment_create, name='appointment_create'),
     path('appointments/<uuid:pk>/edit/', views.appointment_update, name='appointment_update'),
-    path('appointments/<uuid:pk>/delete/', views.appointment_delete, name='appointment_delete')
+    path('appointments/<uuid:pk>/delete/', views.appointment_delete, name='appointment_delete'),
+    path('prescriptions/', views.prescription_list, name='prescription_list'),
+    path('prescriptions/add/', views.prescription_create, name='prescription_create'),
+    path('prescriptions/<uuid:pk>/edit/', views.prescription_update, name='prescription_update'),
+    path('prescriptions/<uuid:pk>/delete/', views.prescription_delete, name='prescription_delete'),
+    path('billings/', views.billing_list, name='billing_list'),
+    path('billings/add/', views.billing_create, name='billing_create'),
+    path('billings/<uuid:pk>/edit/', views.billing_update, name='billing_update'),
+    path('billings/<uuid:pk>/delete/', views.billing_delete, name='billing_delete'),
 ]

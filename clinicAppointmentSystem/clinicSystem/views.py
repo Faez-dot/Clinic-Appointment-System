@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from .models import Patient,Doctor, Appointment
-from .forms import PatientForm, DoctorForm, AppointmentForm
+from .models import Patient,Doctor, Appointment, Prescription, Billing
+from .forms import PatientForm, DoctorForm, AppointmentForm, PrescriptionForm, BillingForm
 # Create your views here.
 #def hello_world(request):
 #    return HttpResponse("Hello, World!")
@@ -100,3 +100,66 @@ def appointment_delete(request, pk):
     appointment.delete()
     return redirect('clinicSystem:appointment_list')
 
+def prescription_list(request):
+    prescriptions=Prescription.objects.select_related('patient', 'doctor').all()
+    return render(request, 'prescriptions/list.html', {'prescriptions': prescriptions})
+
+def prescription_create(request):
+    if request.method=='POST':
+        form=PrescriptionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('clinicSystem:prescription_list')
+    else:
+        form=PrescriptionForm()
+    return render(request, 'prescriptions/form.html', {'form': form, 'title': 'Add Prescription'})
+
+def prescription_update(request, pk):
+    prescription=get_object_or_404(Prescription, pk=pk)
+    if request.method=='POST':
+        form=PrescriptionForm(request.POST, instance=prescription)
+        if form.is_valid():
+            form.save()
+            return redirect('clinicSystem:prescription_list')
+    else:
+        form=PrescriptionForm(instance=prescription)
+    return render(request, 'prescriptions/form.html', {'form': form, 'title': 'Edit Prescription'})
+
+def prescription_delete(request, pk):
+    prescription=get_object_or_404(Prescription, pk=pk)
+    prescription.delete()
+    return redirect('clinicSystem:prescription_list')
+
+def billing_list(request):
+    billings=Billing.objects.select_related('patient','appointment').all()
+    return render(request, 'billings/list.html', {'billings': billings})
+
+def billing_create(request):
+    if request.method=='POST':
+        form=BillingForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('clinicSystem:billing_list')
+    else:
+        form=BillingForm()
+    return render(request, 'billings/form.html', {'form': form,'title':'Add Billing'})
+
+def billing_update(request, pk):
+    billing=get_object_or_404(Billing, pk=pk)
+    if request.method=='POST':
+        form=BillingForm(request.POST, instance=billing)
+        if form.is_valid():
+            form.save()
+            return redirect('clinicSystem:billing_list')
+    else:
+        form=BillingForm(instance=billing)
+    return render(request, 'billings/form.html', {'form':form, 'title':'Edit Billing'})
+
+def billing_delete(request,pk):
+    billing=get_object_or_404(Billing, pk=pk)
+    billing.delete()
+    return redirect('clinicSystem:billing_list')
+
+
+
+    
