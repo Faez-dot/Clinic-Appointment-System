@@ -38,7 +38,7 @@ def patient_update(request, pk):
 def patient_delete(request, pk):
     patient=get_object_or_404(Patient, pk=pk)
     patient.delete()
-    return redirect('ClinicSystem:patient_list')
+    return redirect('clinicSystem:patient_list')
 
 def doctor_list(request):
     doctors=Doctor.objects.all()
