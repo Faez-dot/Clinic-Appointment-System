@@ -1,53 +1,64 @@
 # Clinic Appointment System
 
-A modern, fast, and responsive web application built with **FastAPI** and **MySQL** to manage patient records, doctors, and appointment scheduling.
+A Django-based web application for managing patients, doctors, appointments, prescriptions, and billing using MySQL.
 
 ## 🚀 Features
 
-- **Patient Management**:
-  - Full CRUD operations (Add, View, Edit, Delete).
-  - Real-time frontend validations.
-  - Backend validations using Pydantic (e.g. Pakistani phone format `03XXXXXXXXX`, past date-of-birth constraints).
-- **Doctor Management**:
-  - Full CRUD operations.
-  - Track experience, specialization, contact details, and weekly availability.
-- **Modern UI/UX**:
-  - Tab-based navigation (Patients, Doctors, and planned Appointments).
-  - Glassmorphic overlays with slide-in modals.
-  - Animated toast alerts for success/error feedback.
-  - Responsive layout tailored for desktop, tablet, and mobile views.
-- **Database & Architecture**:
-  - Relational MySQL storage using SQLAlchemy ORM.
-  - Separate routers for clean API structuring.
-  - Alembic integration for database migrations.
+- **Patient Management**
+  - Add, edit, view, and delete patients.
+  - Store name, date of birth, gender, phone, email, and address.
+- **Doctor Management**
+  - Add, edit, view, and delete doctors.
+  - Track specialization, contact, experience, availability, and duty times.
+- **Appointment Scheduling**
+  - Create, edit, view, and delete appointments.
+  - Link appointments to patients and doctors.
+- **Prescription Management**
+  - Create and manage prescriptions for patients from doctors.
+  - Store medicine name, dosage, instructions, and prescription date.
+- **Billing Management**
+  - Create and manage billing records.
+  - Link billing to patients and optional appointments.
+  - Track amount, payment status, and payment date.
+- **Admin Interface**
+  - Manage patients, doctors, appointments, prescriptions, and billings via Django admin.
+- **Static assets**
+  - CSS served from Django static files.
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Backend**: FastAPI, Python 3.x, SQLAlchemy (ORM), Pydantic v2 (Validation), Jinja2 (Templating)
-- **Database**: MySQL (via PyMySQL connector)
-- **Frontend**: Semantic HTML5, Custom Vanilla CSS, Vanilla JavaScript
+- **Backend**: Django
+- **Database**: MySQL
+- **Frontend**: HTML, CSS, Django templates
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-Clinic_Appointment_System/
-├── routes/                  # API routers (patient, doctor, etc.)
-│   ├── patient_routes.py
-│   └── doctor_routes.py
-├── static/                  # Static assets (CSS styles)
-│   └── style.css
-├── templates/               # Jinja2 HTML templates
-│   └── index.html
-├── data/                    # JSON metadata/data stores
-├── alembic/                 # Alembic DB migration configuration
-├── classes.py               # Pydantic Schemas & Validators
-├── db.py                    # Database connection & SQLAlchemy Models
-├── main.py                  # App entry point
-└── README.md                # Project documentation
+clinicAppointmentSystem/
+├── clinicAppointmentSystem/    # Django project settings and URLs
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+├── clinicSystem/              # Django app for clinic management
+│   ├── migrations/
+│   ├── admin.py
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── templates/
+│   │   ├── patients/
+│   │   ├── doctors/
+│   │   ├── appointments/
+│   │   ├── prescriptions/
+│   │   └── billings/
+│   └── static/
+├── manage.py
+└── README.md
 ```
 
 ---
@@ -55,46 +66,69 @@ Clinic_Appointment_System/
 ## ⚙️ Setup & Installation
 
 ### 1. Prerequisites
-- Python 3.8+ installed on your system.
-- MySQL Server (e.g., via XAMPP, WampServer, or direct installation) running on `localhost`.
+- Python 3.11+ installed.
+- MySQL Server running on `localhost`.
 
 ### 2. Database Setup
-Create a new MySQL database named `clinic_db`. By default, the database URI is configured for a passwordless root user:
+Create a new MySQL database named `clinic_db`:
 ```sql
 CREATE DATABASE clinic_db;
 ```
-*(If your MySQL configuration has a password or a different port, update the `DATABASE_URL` in `db.py`)*.
+If your MySQL user or password differs, update the `DATABASES` settings in `clinicAppointmentSystem/settings.py`.
 
 ### 3. Install Dependencies
-Install all required Python packages:
+Use your Python environment and install Django and MySQL client packages.
+
+If you are using pip:
 ```bash
-pip install fastapi uvicorn sqlalchemy pymysql pydantic[email] jinja2
+pip install django mysqlclient
 ```
 
-### 4. Run the Application
-Start the development server using Uvicorn:
+### 4. Run Migrations
+Generate and apply migrations for the clinic app:
 ```bash
-uvicorn main:app --reload
+python manage.py makemigrations
+python manage.py migrate
 ```
 
-Open your browser and navigate to:
-- **Web App**: [http://127.0.0.1:8000](http://127.0.0.1:8000)
-- **Interactive Swagger Docs**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+### 5. Create Superuser
+Create a Django admin user to manage data:
+```bash
+python manage.py createsuperuser
+```
+
+### 6. Run the Application
+Start the local Django server:
+```bash
+python manage.py runserver
+```
+
+Open the application in your browser at:
+- [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- Admin panel: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
 
 ---
 
-## 🧪 API Endpoints
+## ✅ Usage Notes
 
-### Patients
-- `GET /api/patients/` - Fetch all patient records.
-- `GET /api/patients/{id}` - Fetch single patient.
-- `POST /api/patients/` - Create a new patient record.
-- `PUT /api/patients/{id}` - Update a patient record.
-- `DELETE /api/patients/{id}` - Delete patient record.
+- Use the home page tabs to navigate to Patients, Doctors, Appointments, Prescriptions, and Billings.
+- The Django admin lets you manage all models from one interface.
+- Static CSS files are served through Django's static files system.
 
-### Doctors
-- `GET /api/doctors/` - Fetch all doctor records.
-- `GET /api/doctors/{id}` - Fetch single doctor.
-- `POST /api/doctors/` - Create a new doctor record.
-- `PUT /api/doctors/{id}` - Update a doctor record.
-- `DELETE /api/doctors/{id}` - Delete doctor record.
+---
+
+## 📌 Important Files
+
+- `clinicSystem/models.py` — model definitions for patients, doctors, appointments, prescriptions, and billings.
+- `clinicSystem/admin.py` — admin registration for all models.
+- `clinicSystem/urls.py` — app URL routes.
+- `clinicSystem/views.py` — view logic for CRUD operations.
+- `clinicAppointmentSystem/settings.py` — database and static file configuration.
+
+---
+
+## 🧪 Troubleshooting
+
+- If static files do not load, verify `STATICFILES_DIRS` in `clinicAppointmentSystem/settings.py` and ensure `style.css` is in the configured folder.
+- If migrations appear applied but tables are missing, check the database schema and `django_migrations` table for consistency.
+- If delete URLs return 404, confirm the URL patterns use trailing slashes consistently with your templates.
