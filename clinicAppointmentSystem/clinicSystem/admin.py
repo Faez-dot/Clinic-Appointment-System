@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Patient, Doctor, Appointment,Prescription,Billing
+from .models import Patient, Doctor, Appointment,Prescription,Billing, MedicalRecord
 # Register your models here.
 
 @admin.register(Patient)
@@ -29,3 +29,8 @@ class BillingAdmin(admin.ModelAdmin):
     search_fields=('patient__name','appointment__patient__name','payment_status')
     list_filter=('payment_status','payment_date')
 
+@admin.register(MedicalRecord)
+class MedicalRecordAdmin(admin.ModelAdmin):
+    list_display=('patient','doctor','appointment','created_at')
+    search_fields=('patient__name','doctor__name','diagnosis','symptoms')
+    list_filter=('doctor','created_at')

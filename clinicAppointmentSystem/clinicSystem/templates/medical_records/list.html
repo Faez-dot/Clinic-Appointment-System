@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Medical Records</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>Medical Records</h1>
+            <p>Manage patient records</p>
+        </header>
+
+        <div class="toolbar">
+            <h2>Medical Record List</h2>
+            <a class="btn btn-primary" href="/medical-records/add/">Add Medical Record</a>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Appointment</th>
+                        <th>Diagnosis</th>
+                        <th>Symptoms</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                        <tr>
+                            <td>{{ record.patient.name }}</td>
+                            <td>{{ record.doctor.name }}</td>
+                            <td>{{ record.appointment }}</td>
+                            <td>{{ record.diagnosis|truncatechars:50 }}</td>
+                            <td>{{ record.symptoms|truncatechars:50 }}</td>
+                            <td>{{ record.created_at }}</td>
+                            <td>
+                                <a class="btn btn-edit" href="/medical-records/{{ record.pk }}/edit/">Edit</a>
+                                <a class="btn btn-delete" href="/medical-records/{{ record.pk }}/delete/">Delete</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">No medical record found</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</body>
+</html>

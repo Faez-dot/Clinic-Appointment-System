@@ -25,4 +25,8 @@ urlpatterns = [
     path('billings/add/', views.billing_create, name='billing_create'),
     path('billings/<uuid:pk>/edit/', views.billing_update, name='billing_update'),
     path('billings/<uuid:pk>/delete/', views.billing_delete, name='billing_delete'),
+    path('medical-records/', views.medical_record_list, name='medical_record_list'),
+    path('medical-records/add/',views.medical_record_create,name='medical_record_create'),
+    path('medical-records/<uuid:pk>/edit/',views.medical_record_update,name='medical_record_update'),
+    path('medical-records/<uuid:pk>/delete/',views.medical_record_delete,name='medical_record_delete'),   
 ]

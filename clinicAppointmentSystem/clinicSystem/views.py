@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from .models import Patient,Doctor, Appointment, Prescription, Billing
-from .forms import PatientForm, DoctorForm, AppointmentForm, PrescriptionForm, BillingForm
+from .models import Patient,Doctor, Appointment, Prescription, Billing, MedicalRecord
+from .forms import PatientForm, DoctorForm, AppointmentForm, PrescriptionForm, BillingForm, MedicalRecordForm
 # Create your views here.
 #def hello_world(request):
 #    return HttpResponse("Hello, World!")
@@ -162,4 +162,33 @@ def billing_delete(request,pk):
 
 
 
-    
+def medical_record_list(request):
+    records=MedicalRecord.objects.select_related('patient','doctor','appointment').all()
+    return render(request, 'medical_records/list.html', {'records': records})
+
+def medical_record_create(request):
+    if request.method=='POST':
+        form=MedicalRecordForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('clinicSystem:medical_record_list')
+    else:
+        form=MedicalRecordForm()
+    return render(request, 'medical_records/form.html', {'form': form, 'title': 'Add Medical Record'})
+
+def medical_record_update(request, pk):
+    record=get_object_or_404(MedicalRecord, pk=pk)
+    if request.method=='POST':
+        form=MedicalRecordForm(request.POST, instance=record)
+        if form.is_valid():
+            form.save()
+            return redirect('clinicSystem:medical_record_list')
+    else:
+        form=MedicalRecordForm(instance=record)
+    return render(request, 'medical_records/form.html', {'form': form, 'title': 'Edit Medical Record'})
+
+def medical_record_delete(request, pk):
+    record=get_object_or_404(MedicalRecord, pk=pk)
+    record.delete()
+    return redirect('clinicSystem:medical_record_list')
+

@@ -87,3 +87,21 @@ class Billing(models.Model):
         return f"{self.patient.name} - {self.amount}"
     
 
+class MedicalRecord(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient=models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='medical_records')
+    doctor=models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='medical_records')
+    appointment=models.OneToOneField('Appointment', on_delete=models.CASCADE, related_name='medical_records')
+    diagnosis=models.TextField()
+    symptoms=models.TextField()
+    treatment=models.TextField()
+    notes=models.TextField()
+    created_at=models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table='clinicsystem_medical_record'
+
+    def __str__(self):
+        return f"{self.patient.name} - {self.appointment.appointment_date}"
+    
+
