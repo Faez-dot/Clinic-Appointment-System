@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from .models import Patient,Doctor, Appointment, Prescription, Billing, MedicalRecord
-from .forms import PatientForm, DoctorForm, AppointmentForm, PrescriptionForm, BillingForm, MedicalRecordForm
+from .models import Patient,Doctor, Appointment, Prescription, Billing, MedicalRecord, LaboratoryTest
+from .forms import PatientForm, DoctorForm, AppointmentForm, PrescriptionForm, BillingForm, MedicalRecordForm,LaboratoryTestForm
 # Create your views here.
 #def hello_world(request):
 #    return HttpResponse("Hello, World!")
@@ -191,4 +191,34 @@ def medical_record_delete(request, pk):
     record=get_object_or_404(MedicalRecord, pk=pk)
     record.delete()
     return redirect('clinicSystem:medical_record_list')
+
+def laboratory_test_list(request):
+    tests=LaboratoryTest.objects.select_related('patient','doctor','appointment').all()
+    return render(request, 'laboratory_tests/list.html', {'tests': tests})
+
+def laboratory_test_create(request):
+    if request.method=='POST':
+        form=LaboratoryTestForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('clinicSystem:laboratory_test_list')
+    else:
+        form=LaboratoryTestForm()
+    return render(request, 'laboratory_tests/form.html', {'form': form, 'title': 'Add Laboratory Test'})
+
+def laboratory_test_update(request, pk):
+    test=get_object_or_404(LaboratoryTest, pk=pk)
+    if request.method=='POST':
+        form=LaboratoryTestForm(request.POST, instance=test)
+        if form.is_valid():
+            form.save()
+            return redirect('clinicSystem:laboratory_test_list')
+    else:
+        form=LaboratoryTestForm(instance=test)
+    return render(request, 'laboratory_tests/form.html', {'form': form,'title': 'Edit Laboratory Test'})
+
+def laboratory_test_delete(request, pk):
+    test=get_object_or_404(LaboratoryTest, pk=pk)
+    test.delete()
+    return redirect('clinicSystem:laboratory_test_list')
 

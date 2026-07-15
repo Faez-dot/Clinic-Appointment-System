@@ -1,5 +1,5 @@
 from django import forms
-from .models import Patient, Doctor, Appointment,Prescription,Billing,MedicalRecord
+from .models import Patient, Doctor, Appointment,Prescription,Billing,MedicalRecord, LaboratoryTest
 
 class PatientForm(forms.ModelForm):
     class Meta:
@@ -32,4 +32,9 @@ class MedicalRecordForm(forms.ModelForm):
     class Meta:
         model=MedicalRecord
         fields=['patient','doctor','appointment','diagnosis','symptoms','treatment','notes']
+
+class LaboratoryTestForm(forms.ModelForm):
+    class Meta:
+        model=LaboratoryTest
+        fields=['patient','doctor','appointment','test_name','test_date','result','status']
 

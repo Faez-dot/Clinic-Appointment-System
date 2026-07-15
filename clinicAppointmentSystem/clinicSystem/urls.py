@@ -28,5 +28,9 @@ urlpatterns = [
     path('medical-records/', views.medical_record_list, name='medical_record_list'),
     path('medical-records/add/',views.medical_record_create,name='medical_record_create'),
     path('medical-records/<uuid:pk>/edit/',views.medical_record_update,name='medical_record_update'),
-    path('medical-records/<uuid:pk>/delete/',views.medical_record_delete,name='medical_record_delete'),   
+    path('medical-records/<uuid:pk>/delete/',views.medical_record_delete,name='medical_record_delete'),
+    path('laboratory-tests/',views.laboratory_test_list, name='laboratory_test_list'),
+    path('laboratory-tests/add/',views.laboratory_test_create, name='laboratory_test_create'),
+    path('laboratory-tests/<uuid:pk>/edit/',views.laboratory_test_update,name='laboratory_test_update'),
+    path('laboratory-tests/<uuid:pk>/delete/',views.laboratory_test_delete,name='laboratory_test_delete'),   
 ]

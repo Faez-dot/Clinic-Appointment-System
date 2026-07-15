@@ -104,4 +104,18 @@ class MedicalRecord(models.Model):
     def __str__(self):
         return f"{self.patient.name} - {self.appointment.appointment_date}"
     
+class LaboratoryTest(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient=models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='lab_tests')
+    doctor=models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='lab_tests')
+    appointment=models.ForeignKey('Appointment', on_delete=models.CASCADE, related_name='lab_tests')
+    test_name=models.CharField(max_length=30)
+    test_date=models.DateField()
+    result=models.TextField()
+    status=models.CharField(max_length=20,choices=[('Pending','Pending'),('Completed','Completed')],default='Pending')
 
+    class Meta:
+        db_table='clinicsystem_lab_test'
+
+    def __str__(self):
+        return f"{self.patient.name} - {self.test_name}"
